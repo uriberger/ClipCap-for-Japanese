@@ -11,7 +11,6 @@ import sys
 import argparse
 import japanese_clip as ja_clip
 import numpy as np
-import wandb
 from typing import Tuple, Optional, Union
 from dataset import *
 from model import *
@@ -235,8 +234,6 @@ def train(dataset, dataloader, model, args,
 
         # eval
         res = {"loss": loss.item()}
-        if args.wandb:
-            wandb.log(res)
         if args.eval:
             eval(dataset, dataloader, model, args)
     return model
@@ -280,12 +277,8 @@ def main():
     parser.add_argument('--num_layers', type=int, default=8)
     parser.add_argument('--is_rn', dest='is_rn', action='store_true')
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
-    parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--eval', action='store_true')
     args = parser.parse_args()
-
-    if args.wandb:
-        wandb.init(project="XXX", name="ClipCap_STAIR")
 
     prefix_length = args.prefix_length
     prefix_dim = 640 if args.is_rn else 512

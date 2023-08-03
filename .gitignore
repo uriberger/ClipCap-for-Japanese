@@ -144,3 +144,4 @@ val2014
 STAIR-captions
 checkpoints/
 wandb/
+slurm-*.out
