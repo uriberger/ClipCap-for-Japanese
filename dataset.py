@@ -1,4 +1,4 @@
-
+import random
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
@@ -17,7 +17,7 @@ DEBUG = False
 
 
 class StairCaptionDataset(Dataset):
-    def __init__(self, tokenizer, clip_preprocess, split, prefix_length, transform=None):
+    def __init__(self, tokenizer, clip_preprocess, split, prefix_length, transform=None, image_ids_file=None):
         print(f"Preprocess for {split} ... ")
         dataset = None
         if split == "train":
@@ -27,9 +27,16 @@ class StairCaptionDataset(Dataset):
             with open("/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_val_tokenized.json", 'r') as f:
                 dataset = json.load(f)
 
+        annotations = dataset['annotations']
+        if image_ids_file is not None:
+            with open(image_ids_file, 'r') as fp:
+                image_ids = json.load(fp)
+                image_ids_dict = {x: True for x in image_ids}
+                annotations = [x for x in annotations if x['image_id'] in image_ids_dict]
+
         caption2token = {}
         labels_dict = {}  # labels[image_id] = captions
-        for i, cmeta in enumerate(tqdm(dataset["annotations"])):
+        for i, cmeta in enumerate(tqdm(annotations)):
             image_id = cmeta["image_id"]
             caption = cmeta["tokenized_caption"].split(' ')
             caplen = len(caption)

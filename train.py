@@ -278,6 +278,7 @@ def main():
     parser.add_argument('--is_rn', dest='is_rn', action='store_true')
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
     parser.add_argument('--eval', action='store_true')
+    parser.add_argument('--train_image_ids_file', type=str)
     args = parser.parse_args()
 
     prefix_length = args.prefix_length
@@ -287,7 +288,7 @@ def main():
 
     batch_size = args.bs
     train_dataset, train_dataloader = None, None
-    train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length)
+    train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length, image_ids_file=args.train_image_ids_file)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     val_dataset, val_dataloader = None, None
