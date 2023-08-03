@@ -1,4 +1,5 @@
 import json
+import sys
 from lib2to3.pgen2.tokenize import tokenize
 import MeCab
 from tqdm import tqdm
@@ -55,12 +56,12 @@ def compute_metrics(references, candidates, is_ja):
     return metrics
 
 
-def main(mapping_type="mlp"):
+def main(results_dir):
     results, gt = [], None
-    with open(f"./{mapping_type}_eval.json", "r") as f:
+    with open(f"./{results_dir}/eval.json", "r") as f:
         results = json.load(f)
 
-    with open(f"./STAIR-captions/stair_captions_v1.2_val_tokenized.json", "r") as f:
+    with open(f"/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_val_tokenized.json", "r") as f:
         gt = json.load(f)
 
     tagger = MeCab.Tagger("-Owakati")
@@ -88,4 +89,5 @@ def main(mapping_type="mlp"):
 
 
 if __name__ == "__main__":
-    main("mlp")
+    assert len(sys.argv) == 2
+    main(sys.argv[1])

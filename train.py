@@ -257,7 +257,7 @@ def eval(dataset, dataloader, model, args, split="val"):
             if DEBUG and idx >= 10:
                 break
 
-    with open(f"{args.mapping_type}_eval.json", "w") as f:
+    with open(f"{args.out_dir}/eval.json", "w") as f:
         json_res = json.dumps(results)
         f.write(json_res)
 

@@ -145,3 +145,4 @@ STAIR-captions
 checkpoints/
 wandb/
 slurm-*.out
+*~
