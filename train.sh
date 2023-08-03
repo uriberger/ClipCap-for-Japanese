@@ -7,4 +7,4 @@ if [ $1 -eq 1 ]; then
     output="./checkpoints_trm"
 fi
 
-python train.py --mapping_type=$mt --out_dir=$output --wandb
+python train.py --mapping_type=$mt --out_dir=$output

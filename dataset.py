@@ -21,10 +21,10 @@ class StairCaptionDataset(Dataset):
         print(f"Preprocess for {split} ... ")
         dataset = None
         if split == "train":
-            with open("STAIR-captions/stair_captions_v1.2_train_tokenized.json", 'r') as f:
+            with open("/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_train_tokenized.json", 'r') as f:
                 dataset = json.load(f)
         else:
-            with open("STAIR-captions/stair_captions_v1.2_val_tokenized.json", 'r') as f:
+            with open("/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_val_tokenized.json", 'r') as f:
                 dataset = json.load(f)
 
         caption2token = {}
@@ -103,18 +103,7 @@ class StairCaptionDataset(Dataset):
         if split == "test":
             split = "val"  # COCOのvalを使う
 
-        L = len("000000490055")
-        prefix = "0" * (L - len(str(image_id)))
-        path = f"{split}2014/COCO_{split}2014_{prefix}{image_id}.jpg"
-        resized_path = f"{split}2014/resized_COCO_{split}2014_{prefix}{image_id}.jpg"
-
-        if os.path.exists(resized_path):
-            path = resized_path
-        else:
-            img = cv2.imread(path)
-            img = cv2.resize(img, (256, 256))
-            cv2.imwrite(resized_path, img)
-            path = resized_path
+        path = f'/cs/labs/oabend/uriber/datasets/COCO/{split}2014/COCO_{split}2014_{str(image_id).zfill(12)}.jpg'
 
         img_pil = Image.open(path)
         img_tensor = self.clip_preprocess(img_pil).squeeze(0).to("cuda")
