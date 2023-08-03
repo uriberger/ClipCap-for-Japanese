@@ -234,18 +234,14 @@ def train(dataset, dataloader, model, args,
 
         # eval
         res = {"loss": loss.item()}
-        if args.eval:
-            eval(dataset, dataloader, model, args)
     return model
 
 
-def eval(dataset, dataloader, model, args, split="val"):
-    f = 1 if split == "val" else 2
-    _dataloader = dataloader[f]
+def eval(dataloader, model, args):
     model.eval()
     results = []
     with torch.no_grad():
-        for idx, (img, tokens, mask, image_id, all_captions) in enumerate(tqdm(_dataloader)):
+        for idx, (img, tokens, mask, image_id, all_captions) in enumerate(tqdm(dataloader)):
             # for i, _img in enumerate(img):
             output = model.predict(img)
             # output = model.predict_wo_beamsearch(img)
@@ -287,21 +283,28 @@ def main():
                             num_layers=args.num_layers, mapping_type=args.mapping_type)
 
     batch_size = args.bs
-    train_dataset, train_dataloader = None, None
-    train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length, image_ids_file=args.train_image_ids_file)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-
-    val_dataset, val_dataloader = None, None
-    val_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="val", prefix_length=args.prefix_length)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-
-    test_dataset, test_dataloader = None, None
-    test_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="test", prefix_length=args.prefix_length)
-    test_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-
-    dataset = (train_dataset, val_dataset, test_dataset)
-    dataloader = (train_dataloader, val_dataloader, test_dataloader)
+    
     if not args.eval:
+        train_image_ids = None
+        if args.train_image_ids_file is not None:
+            with open(args.train_image_ids_file, 'r') as fp:
+                train_image_ids = json.load(fp)
+
+        train_dataset, train_dataloader = None, None
+        train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length, image_ids=train_image_ids)
+        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+        val_dataset, val_dataloader = None, None
+        val_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="val", prefix_length=args.prefix_length)
+        val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+
+        test_dataset, test_dataloader = None, None
+        test_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="test", prefix_length=args.prefix_length)
+        test_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+
+        dataset = (train_dataset, val_dataset, test_dataset)
+        dataloader = (train_dataloader, val_dataloader, test_dataloader)
+
         model_path = os.path.join(args.out_dir, f"{args.prefix}_best.pt")
         if os.path.exists(model_path):
             model.load_state_dict(torch.load(model_path))
@@ -311,7 +314,15 @@ def main():
         model_path = os.path.join(args.out_dir, f"{args.prefix}_latest.pt")
         model.load_state_dict(torch.load(model_path))
         model = model.cuda()
-        eval(dataset, dataloader, model, args)
+
+        with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
+            coco_data = json.load(fp)['images']
+            test_image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
+
+        test_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="test", prefix_length=args.prefix_length, image_ids=test_image_ids)
+        test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+        eval(test_dataloader, model, args)
 
 
 if __name__ == '__main__':

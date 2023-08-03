@@ -1,5 +1,5 @@
 import json
-import sys
+import argparse
 from lib2to3.pgen2.tokenize import tokenize
 import MeCab
 from tqdm import tqdm
@@ -56,13 +56,38 @@ def compute_metrics(references, candidates, is_ja):
     return metrics
 
 
-def main(results_dir):
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--results_dir', type=str, required=True)
+    parser.add_argument('--image_ids_file', type=str)
+    parser.add_argument('--evaluate_on_val', action='store_true')
+    args = parser.parse_args()
+
+    results_dir = args.reuslts_dir
+
     results, gt = [], None
     with open(f"./{results_dir}/eval.json", "r") as f:
         results = json.load(f)
 
     with open(f"/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_val_tokenized.json", "r") as f:
         gt = json.load(f)
+    gt_annotations = gt["annotations"]
+
+    image_ids = None
+
+    if args.image_ids_file is not None:
+        with open(args.image_ids_file, 'r') as fp:
+            image_ids = json.load(args.image_ids_file)
+    elif not args.evaluate_on_val:
+        # If the user didn't explicitly asked us to evaluate to the validation set, we evaluate only on the test set,
+        # according to karpathy's splits
+        with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
+            coco_data = json.load(fp)['images']
+            image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
+
+    if image_ids is not None:
+        image_ids_dict = {x: True for x in image_ids}
+        gt_annotations = [x for x in gt_annotations if x['image_id'] in image_ids_dict]
 
     tagger = MeCab.Tagger("-Owakati")
     candidates = {}
@@ -75,7 +100,7 @@ def main(results_dir):
             img_set.add(img_id)
 
     references = {}
-    for anno in gt["annotations"]:
+    for anno in gt_annotations:
         img_id = anno["image_id"]
         if img_id not in img_set:
             continue
@@ -89,5 +114,4 @@ def main(results_dir):
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) == 2
-    main(sys.argv[1])
+    main()
