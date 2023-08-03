@@ -253,7 +253,7 @@ def eval(dataloader, model, args):
             if DEBUG and idx >= 10:
                 break
 
-    with open(f"{args.out_dir}/eval.json", "w") as f:
+    with open(f"{args.out_file}.json", "w") as f:
         json_res = json.dumps(results)
         f.write(json_res)
 
@@ -262,6 +262,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', default='./data/coco/oscar_split_train.pkl')
     parser.add_argument('--out_dir', default='./checkpoints')
+    parser.add_argument('--out_file', type=str)
     parser.add_argument('--prefix', default='coco_prefix', help='prefix for saved filenames')
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--save_every', type=int, default=1)
