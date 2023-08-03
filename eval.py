@@ -58,7 +58,7 @@ def compute_metrics(references, candidates, is_ja):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--results_dir', type=str, required=True)
+    parser.add_argument('--input_file', type=str, required=True)
     parser.add_argument('--image_ids_file', type=str)
     parser.add_argument('--evaluate_on_val', action='store_true')
     args = parser.parse_args()
@@ -66,7 +66,7 @@ def main():
     results_dir = args.reuslts_dir
 
     results, gt = [], None
-    with open(f"./{results_dir}/eval.json", "r") as f:
+    with open(args.input_file, "r") as f:
         results = json.load(f)
 
     with open(f"/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_val_tokenized.json", "r") as f:
