@@ -247,7 +247,7 @@ def eval(dataloader, model, args):
             # output = model.predict_wo_beamsearch(img)
             for i, _ in enumerate(image_id):
                 img_id = int(image_id[i].cpu().numpy())
-                print(f"[{img_id}] {output[i]}")
+                #print(f"[{img_id}] {output[i]}")
                 results.append({"image_id": img_id, "caption": output[i]})
 
             if DEBUG and idx >= 10:
