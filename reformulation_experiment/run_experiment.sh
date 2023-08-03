@@ -10,23 +10,23 @@ SAMPLE_NUM=20000
 echo "$MSG_PREFIX Prepare base training data"
 venv/bin/python ${BASE_DIR}/prepare_base_training_data.py ${EXP_IND} ${SAMPLE_NUM}
 echo "$MSG_PREFIX Base training"
-venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_base --epochs 10
+venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_base --epochs 10 --train_image_ids_file ${BASE_DIR}/data/image_ids/base_train_image_ids_${EXP_IND}.json --save_every -1
+echo "$MSG_PREFIX Base inference"
+venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt --out_file ${BASE_DIR}/data/infer/base_infer_on_test_${EXP_IND}
 echo "$MSG_PREFIX Base eval"
-venv/bin/python train.py --eval --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_base
-venv/bin/python eval.py ${BASE_DIR}/output/exp_${EXP_IND}_base
+venv/bin/python eval.py --input_file ${BASE_DIR}/data/infer/base_infer_on_test_${EXP_IND}
 
 # GT based training
-echo "$MSG_PREFIX Prepare GT training data"
-#venv2/bin/python ${BASE_DIR}/prepare_gt_training_data.py ${EXP_IND}
-echo "$MSG_PREFIX GT preprocess"
-#rm -f data/coco/stair_val_data_${EXP_IND}_tokens.pkl
-#venv2/bin/python parse_coco.py --clip_model_type ViT-B/32 --json_file ${BASE_DIR}/data/gt_train_data/stair_val_data_${EXP_IND}.json --output_file stair_val_data_${EXP_IND}
 echo "$MSG_PREFIX GT training"
-#venv2/bin/python train.py --data ./data/coco/stair_val_data_${EXP_IND}.pkl --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_gt --epochs 5 --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt --tokenizer ${MODEL_NAME} --model_name ${MODEL_NAME} ${BS_STR}
+venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_gt --epochs 5 --train_image_ids_file ${BASE_DIR}/data/image_ids/additional_train_image_ids_${EXP_IND}.json --save_every -1 --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt
 echo "$MSG_PREFIX GT inference 1 epoch"
-#venv2/bin/python inference.py --dataset COCO --model_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-000.pt --split test --output_file ${BASE_DIR}/data/infer/gt_infer_on_test_${EXP_IND}_1_epoch --model_name ${MODEL_NAME}
+venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-000.pt --out_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_1_epoch
+echo "$MSG_PREFIX GT eval 1 epoch"
+venv/bin/python eval.py --input_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_1_epoch
 echo "$MSG_PREFIX GT inference 5 epochs"
-#venv2/bin/python inference.py --dataset COCO --model_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-004.pt --split test --output_file ${BASE_DIR}/data/infer/gt_infer_on_test_${EXP_IND}_5_epoch --model_name ${MODEL_NAME}
+venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-004.pt --out_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_5_epoch
+echo "$MSG_PREFIX GT eval 5 epochs"
+venv/bin/python eval.py --input_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_5_epoch
 
 # Translation based training
 echo "$MSG_PREFIX Prepare translation training data"
