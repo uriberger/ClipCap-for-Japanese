@@ -275,12 +275,16 @@ def main():
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--train_image_ids_file', type=str)
+    parser.add_argument('--load_model_from_path', type=str, default=None)
     args = parser.parse_args()
 
     prefix_length = args.prefix_length
     prefix_dim = 640 if args.is_rn else 512
     model = JapaneseClipCap(prefix_length, clip_length=args.prefix_length_clip, prefix_size=prefix_dim,
                             num_layers=args.num_layers, mapping_type=args.mapping_type)
+    if args.load_model_from_path is not None:
+        model.load_state_dict(torch.load(args.load_model_from_path, map_location=torch.device("cpu")))
+        print("Model loaded from " + args.load_model_from_path)
 
     batch_size = args.bs
     
