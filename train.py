@@ -315,8 +315,6 @@ def main():
         model = model.cuda()
         train(dataset, dataloader, model, args, output_dir=args.out_dir, output_prefix=args.prefix)
     else:
-        model_path = os.path.join(args.out_dir, f"{args.prefix}_latest.pt")
-        model.load_state_dict(torch.load(model_path))
         model = model.cuda()
 
         with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
