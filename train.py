@@ -322,7 +322,7 @@ def main():
 
         if args.image_ids_file is not None:
             print(f'Loading image ids from {args.image_ids_file}')
-            with open(args.train_image_ids_file, 'r') as fp:
+            with open(args.image_ids_file, 'r') as fp:
                 test_image_ids = json.load(fp)
         else:
             with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
