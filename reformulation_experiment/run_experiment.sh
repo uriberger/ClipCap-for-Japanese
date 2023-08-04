@@ -6,7 +6,6 @@ BASE_DIR=reformulation_experiment
 EXP_IND=0
 SAMPLE_NUM=10000
 
-
 # Base training
 echo "$MSG_PREFIX Prepare base training data"
 venv/bin/python ${BASE_DIR}/prepare_base_training_data.py ${EXP_IND} ${SAMPLE_NUM}
@@ -25,7 +24,7 @@ venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${
 
 # Translation based training
 echo "$MSG_PREFIX Translation training"
-venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_translated --epochs 5 --train_json_file ${BASE_DIR}/data/translated_data/coco_ja_translated_helsinki.json --image_ids_file ${BASE_DIR}/data/image_ids/additional_train_image_ids_${EXP_IND}.json --save_every 5 --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt
+venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_translated --epochs 5 --json_file ${BASE_DIR}/data/translated_data/coco_ja_translated_helsinki.json --image_ids_file ${BASE_DIR}/data/image_ids/additional_train_image_ids_${EXP_IND}.json --save_every 5 --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt
 echo "$MSG_PREFIX Translation inference 1 epoch"
 venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_translated/coco_prefix-000.pt --out_file ${BASE_DIR}/data/infer/translated_infer_on_test_${EXP_IND}_1_epoch
 echo "$MSG_PREFIX Translation inference 5 epochs"
@@ -33,7 +32,7 @@ venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${
 
 # Own captions based training
 echo "$MSG_PREFIX Base inference on val"
-venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt --image_ids_file ${BASE_DIR}/data/image_ids/additional_train_image_ids_${EXP_IND}.json --out_file ${BASE_DIR}/data/infer/base_infer_on_additiona_train_${EXP_IND}
+venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt --json_file /cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_train_tokenized.json --image_ids_file ${BASE_DIR}/data/image_ids/additional_train_image_ids_${EXP_IND}.json --out_file ${BASE_DIR}/data/infer/base_infer_on_additiona_train_${EXP_IND}
 echo "$MSG_PREFIX Own data preperation"
 #venv2/bin/python ${BASE_DIR}/prepare_own_training_data.py ${EXP_IND}
 echo "$MSG_PREFIX Own captions preprocess"
