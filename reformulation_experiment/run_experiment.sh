@@ -6,6 +6,7 @@ BASE_DIR=reformulation_experiment
 EXP_IND=0
 SAMPLE_NUM=20000
 
+
 # Base training
 echo "$MSG_PREFIX Prepare base training data"
 venv/bin/python ${BASE_DIR}/prepare_base_training_data.py ${EXP_IND} ${SAMPLE_NUM}
@@ -14,19 +15,19 @@ venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_base --epoc
 echo "$MSG_PREFIX Base inference"
 venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt --out_file ${BASE_DIR}/data/infer/base_infer_on_test_${EXP_IND}
 echo "$MSG_PREFIX Base eval"
-venv/bin/python eval.py --input_file ${BASE_DIR}/data/infer/base_infer_on_test_${EXP_IND}
+venv/bin/python eval.py --input_file ${BASE_DIR}/data/infer/base_infer_on_test_${EXP_IND}.json
 
 # GT based training
 echo "$MSG_PREFIX GT training"
 venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_gt --epochs 5 --train_image_ids_file ${BASE_DIR}/data/image_ids/additional_train_image_ids_${EXP_IND}.json --save_every -1 --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_base/coco_prefix-009.pt
 echo "$MSG_PREFIX GT inference 1 epoch"
-venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-000.pt --out_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_1_epoch
+venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-000.pt --out_file ${BASE_DIR}/data/infer/gt_infer_on_test_${EXP_IND}_1_epoch
 echo "$MSG_PREFIX GT eval 1 epoch"
-venv/bin/python eval.py --input_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_1_epoch
+venv/bin/python eval.py --input_file ${BASE_DIR}/data/infer/gt_infer_on_test_${EXP_IND}_1_epoch.json
 echo "$MSG_PREFIX GT inference 5 epochs"
-venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-004.pt --out_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_5_epoch
+venv/bin/python train.py --eval --load_model_from_path ${BASE_DIR}/output/exp_${EXP_IND}_gt/coco_prefix-004.pt --out_file ${BASE_DIR}/data/infer/gt_infer_on_test_${EXP_IND}_5_epoch
 echo "$MSG_PREFIX GT eval 5 epochs"
-venv/bin/python eval.py --input_file ${BASE_DIR}/infer/gt_infer_on_test_${EXP_IND}_5_epoch
+venv/bin/python eval.py --input_file ${BASE_DIR}/data/infer/gt_infer_on_test_${EXP_IND}_5_epoch.json
 
 # Translation based training
 echo "$MSG_PREFIX Prepare translation training data"
