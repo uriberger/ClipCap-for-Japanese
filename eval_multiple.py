@@ -23,6 +23,8 @@ def compute_metrics(references, candidates, is_ja):
     ###BLEU#####
     print("Compute BLEU ... ")
     pycoco_bleu = Bleu()
+    print(len(references))
+    print(len(candidates))
     bleu, _ = pycoco_bleu.compute_score(references, candidates)
 
     ####METEOR###
@@ -55,7 +57,7 @@ def compute_metrics(references, candidates, is_ja):
 
 
 def main():
-    input_patterns = sys.argv[2:]
+    input_patterns = sys.argv[1:]
     data = {}
     for pattern in input_patterns:
         file_name = pattern.split('/')[-1]
@@ -84,8 +86,6 @@ def main():
     references = {}
     for anno in gt_annotations:
         img_id = anno["image_id"]
-        if img_id not in img_set:
-            continue
         references.setdefault(img_id, [])
         if len(references[img_id]) < 5:
             references[img_id].append(anno["tokenized_caption"])
@@ -93,12 +93,10 @@ def main():
     for pattern_key, pattern_value in data.items():
         for results in pattern_value.values():
             candidates = {}
-            img_set = set()
             for i, elem in tqdm(enumerate(results)):
                 img_id, cap = elem["image_id"], elem["caption"]
                 if img_id not in candidates:
                     candidates[img_id] = [cap]
-                    img_set.add(img_id)
 
             metrics = compute_metrics(references, candidates, is_ja=True)
             print('$$$')
