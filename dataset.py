@@ -60,8 +60,9 @@ class StairCaptionDataset(Dataset):
 
         else:
             img_idxs = list(labels_dict.keys())
-            half_size = len(img_idxs) // 2
-            img_idxs = img_idxs[:half_size] if split == "val" else img_idxs[half_size:]  # COCOのvalを半分に分割
+            if image_ids is None:
+                half_size = len(img_idxs) // 2
+                img_idxs = img_idxs[:half_size] if split == "val" else img_idxs[half_size:]  # COCOのvalを半分に分割
             for image_id in tqdm(img_idxs):
                 for tokens, caption, caplen in labels_dict[image_id]:
                     labels.append((image_id, tokens, caption, caplen))  # image_id, caption
