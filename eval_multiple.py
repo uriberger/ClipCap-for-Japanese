@@ -2,6 +2,8 @@ import json
 import os
 import sys
 from tqdm import tqdm
+import statistics
+from collections import defaultdict
 from dataclasses import dataclass
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.meteor.meteor import Meteor
@@ -23,8 +25,6 @@ def compute_metrics(references, candidates, is_ja):
     ###BLEU#####
     print("Compute BLEU ... ")
     pycoco_bleu = Bleu()
-    print(len(references))
-    print(len(candidates))
     bleu, _ = pycoco_bleu.compute_score(references, candidates)
 
     ####METEOR###
@@ -91,6 +91,7 @@ def main():
             references[img_id].append(anno["tokenized_caption"])
 
     for pattern_key, pattern_value in data.items():
+        res = defaultdict(list)
         for results in pattern_value.values():
             candidates = {}
             for i, elem in tqdm(enumerate(results)):
@@ -99,9 +100,17 @@ def main():
                     candidates[img_id] = [cap]
 
             metrics = compute_metrics(references, candidates, is_ja=True)
-            print('$$$')
-            print(metrics)
-            print('$$$')
+            for i in range(4):
+                res[f'bleu{i+1}'].append(metrics.bleu[i])
+            res['rouge'].append(metrics.rouge)
+            res['meteor'].append(metrics.meteor)
+            res['cider'].append(metrics.cider)
+            res['spice'].append(metrics.spice)
+        print('>>>>>>>>>>')
+        print(pattern_key)
+        for metric in res:
+            print(f'\t{metric}: {statistics.mean(res[metric])} +- {statistics.stdev(res[metric])}')
+        print('<<<<<<<<<<')
 
 if __name__ == "__main__":
     main()
