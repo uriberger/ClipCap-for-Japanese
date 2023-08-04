@@ -1,10 +1,8 @@
 import json
-import argparse
-from lib2to3.pgen2.tokenize import tokenize
-import MeCab
+import os
+import sys
 from tqdm import tqdm
 from dataclasses import dataclass
-from functools import reduce
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
@@ -57,44 +55,31 @@ def compute_metrics(references, candidates, is_ja):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input_file', type=str, required=True)
-    parser.add_argument('--image_ids_file', type=str)
-    parser.add_argument('--evaluate_on_val', action='store_true')
-    args = parser.parse_args()
-
-    results, gt = [], None
-    with open(args.input_file, "r") as f:
-        results = json.load(f)
+    input_patterns = sys.argv[2:]
+    data = {}
+    for pattern in input_patterns:
+        file_name = pattern.split('/')[-1]
+        dir_path = '/'.join(pattern.split('/')[:-1])
+        file_parts = file_name.split('@')
+        assert len(file_parts) == 3
+        options = file_parts[1].split(',')
+        file_names = [file_parts[0] + x + file_parts[2] for x in options]
+        file_paths = [os.path.join(dir_path, x) for x in file_names]
+        
+        data[pattern] = {}
+        for file_path in file_paths:
+            with open(file_path, 'r') as fp:
+                data[pattern][file_path] = json.load(fp)
 
     with open(f"/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_val_tokenized.json", "r") as f:
         gt = json.load(f)
     gt_annotations = gt["annotations"]
 
-    image_ids = None
-
-    if args.image_ids_file is not None:
-        with open(args.image_ids_file, 'r') as fp:
-            image_ids = json.load(args.image_ids_file)
-    elif not args.evaluate_on_val:
-        # If the user didn't explicitly asked us to evaluate to the validation set, we evaluate only on the test set,
-        # according to karpathy's splits
-        with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
-            coco_data = json.load(fp)['images']
-            image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
-
-    if image_ids is not None:
+    with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
+        coco_data = json.load(fp)['images']
+        image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
         image_ids_dict = {x: True for x in image_ids}
         gt_annotations = [x for x in gt_annotations if x['image_id'] in image_ids_dict]
-
-    tagger = MeCab.Tagger("-Owakati")
-    candidates = {}
-    img_set = set()
-    for i, elem in tqdm(enumerate(results)):
-        img_id, cap = elem["image_id"], elem["caption"]
-        if img_id not in candidates:
-            candidates[img_id] = [cap]
-            img_set.add(img_id)
 
     references = {}
     for anno in gt_annotations:
@@ -105,10 +90,20 @@ def main():
         if len(references[img_id]) < 5:
             references[img_id].append(anno["tokenized_caption"])
 
-    # print(candidates)
-    metrics = compute_metrics(references, candidates, is_ja=True)
-    print(metrics)
+    for pattern_key, pattern_value in data.items():
+        for results in pattern_value.values():
+            candidates = {}
+            img_set = set()
+            for i, elem in tqdm(enumerate(results)):
+                img_id, cap = elem["image_id"], elem["caption"]
+                if img_id not in candidates:
+                    candidates[img_id] = [cap]
+                    img_set.add(img_id)
 
+            metrics = compute_metrics(references, candidates, is_ja=True)
+            print('$$$')
+            print(metrics)
+            print('$$$')
 
 if __name__ == "__main__":
     main()
