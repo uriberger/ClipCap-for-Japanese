@@ -17,7 +17,7 @@ DEBUG = False
 
 
 class StairCaptionDataset(Dataset):
-    def __init__(self, tokenizer, clip_preprocess, split, prefix_length, transform=None, image_ids=None):
+    def __init__(self, tokenizer, clip_preprocess, split, prefix_length, transform=None, image_ids=None, one_caption_per_image=False):
         print(f"Preprocess for {split} ... ")
         dataset = None
         if split == "train":
@@ -34,8 +34,14 @@ class StairCaptionDataset(Dataset):
 
         caption2token = {}
         labels_dict = {}  # labels[image_id] = captions
+        if one_caption_per_image:
+            visited_image_ids = {}
         for i, cmeta in enumerate(tqdm(annotations)):
             image_id = cmeta["image_id"]
+            if one_caption_per_image:
+                if image_id in visited_image_ids:
+                    continue
+                visited_image_ids[image_id] = True
             caption = cmeta["tokenized_caption"].split(' ')
             caplen = len(caption)
             tokens = tokenizer.encode(caption, return_tensors="pt").squeeze(0)

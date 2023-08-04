@@ -322,7 +322,7 @@ def main():
             coco_data = json.load(fp)['images']
             test_image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
 
-        test_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="test", prefix_length=args.prefix_length, image_ids=test_image_ids)
+        test_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="test", prefix_length=args.prefix_length, image_ids=test_image_ids, one_caption_per_image=True)
         test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
         eval(test_dataloader, model, args)
