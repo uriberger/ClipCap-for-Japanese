@@ -276,7 +276,7 @@ def main():
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--train_json_file', type=str)
-    parser.add_argument('--train_image_ids_file', type=str)
+    parser.add_argument('--image_ids_file', type=str)
     parser.add_argument('--load_model_from_path', type=str, default=None)
     args = parser.parse_args()
 
@@ -292,8 +292,9 @@ def main():
     
     if not args.eval:
         train_image_ids = None
-        if args.train_image_ids_file is not None:
-            with open(args.train_image_ids_file, 'r') as fp:
+        if args.image_ids_file is not None:
+            print(f'Loading image ids from {args.image_ids_file}')
+            with open(args.image_ids_file, 'r') as fp:
                 train_image_ids = json.load(fp)
 
         train_dataset, train_dataloader = None, None
@@ -319,9 +320,14 @@ def main():
     else:
         model = model.cuda()
 
-        with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
-            coco_data = json.load(fp)['images']
-            test_image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
+        if args.image_ids_file is not None:
+            print(f'Loading image ids from {args.image_ids_file}')
+            with open(args.train_image_ids_file, 'r') as fp:
+                test_image_ids = json.load(fp)
+        else:
+            with open('../CLIP_prefix_caption/dataset_coco.json', 'r') as fp:
+                coco_data = json.load(fp)['images']
+                test_image_ids = [x['cocoid'] for x in coco_data if x['split'] == 'test']
 
         test_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="test", prefix_length=args.prefix_length, image_ids=test_image_ids, one_caption_per_image=True)
         print(f'Performing inferenece on {len(test_dataset)} samples', flush=True)
