@@ -275,6 +275,7 @@ def main():
     parser.add_argument('--is_rn', dest='is_rn', action='store_true')
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
     parser.add_argument('--eval', action='store_true')
+    parser.add_argument('--train_json_file', type=str)
     parser.add_argument('--train_image_ids_file', type=str)
     parser.add_argument('--load_model_from_path', type=str, default=None)
     args = parser.parse_args()
@@ -296,7 +297,7 @@ def main():
                 train_image_ids = json.load(fp)
 
         train_dataset, train_dataloader = None, None
-        train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length, image_ids=train_image_ids)
+        train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length, json_file=args.train_json_file, image_ids=train_image_ids)
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
         val_dataset, val_dataloader = None, None

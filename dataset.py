@@ -17,10 +17,14 @@ DEBUG = False
 
 
 class StairCaptionDataset(Dataset):
-    def __init__(self, tokenizer, clip_preprocess, split, prefix_length, transform=None, image_ids=None, one_caption_per_image=False):
+    def __init__(self, tokenizer, clip_preprocess, split, prefix_length, transform=None, json_file=None, image_ids=None, one_caption_per_image=False):
         print(f"Preprocess for {split} ... ")
         dataset = None
-        if split == "train":
+        if json_file is not None:
+            print(f'Loading train file from {json_file}')
+            with open(json_file, 'r') as fp:
+                dataset = json.load(fp)
+        elif split == "train":
             with open("/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_train_tokenized.json", 'r') as f:
                 dataset = json.load(f)
         else:
