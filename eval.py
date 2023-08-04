@@ -63,8 +63,6 @@ def main():
     parser.add_argument('--evaluate_on_val', action='store_true')
     args = parser.parse_args()
 
-    results_dir = args.reuslts_dir
-
     results, gt = [], None
     with open(args.input_file, "r") as f:
         results = json.load(f)
