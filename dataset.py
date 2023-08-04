@@ -120,6 +120,12 @@ class StairCaptionDataset(Dataset):
             split = "val"  # COCOのvalを使う
 
         path = f'/cs/labs/oabend/uriber/datasets/COCO/{split}2014/COCO_{split}2014_{str(image_id).zfill(12)}.jpg'
+        if not os.path.isfile(path):
+            if split == 'train':
+                split = 'val'
+            else:
+                split = 'train'
+            path = f'/cs/labs/oabend/uriber/datasets/COCO/{split}2014/COCO_{split}2014_{str(image_id).zfill(12)}.jpg'
 
         img_pil = Image.open(path)
         img_tensor = self.clip_preprocess(img_pil).squeeze(0).to("cuda")
