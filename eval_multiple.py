@@ -109,7 +109,10 @@ def main():
         print('>>>>>>>>>>')
         print(pattern_key)
         for metric in res:
-            print(f'\t{metric}: {statistics.mean(res[metric])} +- {statistics.stdev(res[metric])}')
+            if len(res[metric]) > 1:
+                print(f'\t{metric}: {statistics.mean(res[metric])} +- {statistics.stdev(res[metric])}')
+            else:
+                print(f'\t{metric}: {res[metric][0]}')
         print('<<<<<<<<<<')
 
 if __name__ == "__main__":
