@@ -58,6 +58,10 @@ def compute_metrics(references, candidates, is_ja):
 
 def main():
     input_patterns = sys.argv[1:]
+    no_tokenization = False
+    if input_patterns[-1] == '--no_tokenization':
+        no_tokenization = True
+        input_patterns = input_patterns[:-1]
     data = {}
     for pattern in input_patterns:
         file_name = pattern.split('/')[-1]
@@ -88,8 +92,13 @@ def main():
         img_id = anno["image_id"]
         references.setdefault(img_id, [])
         if len(references[img_id]) < 5:
-            references[img_id].append(anno["tokenized_caption"])
-
+            if no_tokenization:
+                cap = ''.join(anno["tokenized_caption"].split())
+                cap = ' '.join(cap)
+            else:
+                cap = anno["tokenized_caption"]
+            references[img_id].append(cap)
+            
     for pattern_key, pattern_value in data.items():
         res = defaultdict(list)
         for results in pattern_value.values():
@@ -97,6 +106,9 @@ def main():
             for i, elem in tqdm(enumerate(results)):
                 img_id, cap = elem["image_id"], elem["caption"]
                 if img_id not in candidates:
+                    if no_tokenization:
+                        cap = ''.join(cap.split())
+                        cap = ' '.join(cap)
                     candidates[img_id] = [cap]
 
             metrics = compute_metrics(references, candidates, is_ja=True)
