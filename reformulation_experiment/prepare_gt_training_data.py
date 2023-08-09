@@ -14,7 +14,7 @@ if len(sys.argv) == 3:
     image_ids = random.sample(image_ids, add_train_sample_num)
 image_ids_dict = {x: True for x in image_ids}
 
-with open('/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_train.json', 'r') as fp:
+with open('/cs/labs/oabend/uriber/datasets/STAIR-captions/stair_captions_v1.2_train_tokenized.json', 'r') as fp:
     train_data = json.load(fp)['annotations']
 
 image_id_to_captions = defaultdict(list)
