@@ -28,7 +28,10 @@ with open(dummy_file_name, 'w') as fp:
     for sample in tqdm(input_data):
         tokenized_caption = ' '.join(tagger.parse(sample['caption']).split())
         tokenized_caption = clean_sentence(tokenized_caption, fp)
-        res.append({'image_id': sample['image_id'], 'tokenized_caption': tokenized_caption})
+        if split == 'train':
+            res.append({'image_id': sample['image_id'], 'tokenized_caption': tokenized_caption})
+        else:
+            res.append({'image_id': sample['image_id'], 'caption': tokenized_caption})
 if os.path.isfile(dummy_file_name):
     os.remove(dummy_file_name)
 
