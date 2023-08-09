@@ -14,8 +14,9 @@ def clean_sentence(sentence, fp):
             continue
     return res
 
-assert len(sys.argv) == 2
+assert len(sys.argv) == 3
 input_file = sys.argv[1]
+split = sys.argv[2]
 
 with open(input_file, 'r') as fp:
     input_data = json.load(fp)
@@ -32,5 +33,7 @@ if os.path.isfile(dummy_file_name):
     os.remove(dummy_file_name)
 
 output_file_name = input_file.split('.json')[0] + '.token.json'
+if split == 'train':
+    res = {'annotations': res}
 with open(output_file_name, 'w') as fp:
-    fp.write(json.dumps({'annotations': res}))
+    fp.write(json.dumps(res))
