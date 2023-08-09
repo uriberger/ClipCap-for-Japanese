@@ -299,6 +299,7 @@ def main():
 
         train_dataset, train_dataloader = None, None
         train_dataset = StairCaptionDataset(tokenizer=model.gpt.tokenizer, clip_preprocess=model.clip.preprocess, split="train", prefix_length=args.prefix_length, json_file=args.json_file, image_ids=train_image_ids)
+        print(f'Collected {len(train_dataset)} train samples', flush=True)
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
         val_dataset, val_dataloader = None, None
