@@ -11,7 +11,7 @@ echo "Experiment ${EXP_IND} part 1, base training sample num ${BASE_SAMPLE_NUM},
 
 # Base training
 echo "$MSG_PREFIX Prepare base training data"
-venv/bin/python ${BASE_DIR}/prepare_base_training_data.py ${EXP_IND} ${SAMPLE_NUM}
+venv/bin/python ${BASE_DIR}/prepare_base_training_data.py ${EXP_IND} ${BASE_SAMPLE_NUM}
 echo "$MSG_PREFIX Base training"
 venv/bin/python train.py --out_dir ${BASE_DIR}/output/exp_${EXP_IND}_base --epochs 10 --image_ids_file ${BASE_DIR}/data/image_ids/base_train_image_ids_${EXP_IND}.json --save_every 10
 echo "$MSG_PREFIX Base inference"
